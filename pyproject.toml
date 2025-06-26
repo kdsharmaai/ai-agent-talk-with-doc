@@ -1,0 +1,26 @@
+[project]
+name = "ai-agent-talk-with-doc"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "kdsharmaai",email = "kd.sharma.ai@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+[tool.poetry.dependencies]
+python = "^3.10"
+langgraph = "^0.4.9"
+langchain = "^0.3.26"
+openai = "^1.91.0"
+pypdf = "^5.6.1"
+langchain-community = "^0.3.26"
+langchain-openai = "^0.3.25"
+flask = "^3.1.1"
+
+[tool.poetry]
+packages = [{include = "ai_agent_talk_with_doc", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Talk with your PDF document</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon-16x16.png">
+    <style>
+        body {
+            background: #181818;
+            color: #f1f1f1;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #232323;
+            padding: 2em 2.5em;
+            border-radius: 12px;
+            box-shadow: 0 0 20px #1118;
+            width: 80%;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 0.5em;
+        }
+        .instructions {
+            font-size: 0.95em;
+            color: #aaa;
+            margin-bottom: 1.5em;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 0.6em;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 1em;
+            background: #2c2c2c;
+            color: #fafafa;
+            font-size: 1em;
+        }
+        button {
+            background: #3a86ff;
+            color: #fff;
+            border: none;
+            padding: 0.7em 2em;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #265bb5;
+        }
+        .output-area {
+            margin-top: 1.5em;
+            background: #222;
+            padding: 1em;
+            border-radius: 8px;
+            min-height: 2em;
+            color: #ffd166;
+            font-size: 1.08em;
+        }
+        .custom-file-upload {
+            border: 1px solid #ccc;
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            margin-top: 5px;
+            color: #265bb5;
+        }
+        a.sample-file-link {
+            color: #aaa !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/static/graph.png" alt="Graph" style="width: 180px; margin-bottom: 1em; border-radius: 8px; box-shadow: 0 2px 8px #0006;">
+        <h2>Talk with Doc</h2>
+        <div class="instructions">
+            1) Upload a PDF document (Max size 500 KB).<br>
+            2) Insert question in input box.<br><br>
+            Get the answer from the document if answer is present in doc<br>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data" style="margin-bottom: 1em;">
+            <input type="file" id="pdfInput" accept="application/pdf" style="margin-bottom: 0.5em;" class="custom-file-upload" required>
+            <button type="button" id="uploadBtn">Upload PDF</button>
+        </form>
+        <div id="sampleFiles">
+            <a href="/static/AI Agents 101.pdf" class="sample-file-link">Sample file-1</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/static/Meta-Quarter-2025-Results.pdf" class="sample-file-link">Sample file-2</a>
+        </div>
+        <div id="inputArea">
+            <input type="text" id="userInput" placeholder="Enter your question here" required="true">
+            <br>
+            <button id="submitBtn" onclick="submitInput()">Submit</button>
+            <button id="resetBtn" type="button" style="margin-left: 1em;">Reset</button>
+        </div>
+        <img id="loaderImg" src="/static/loader.gif" alt="Loading..." style="display:none;width:36px;margin:1em 0;vertical-align:middle;">
+        <div class="output-area" id="outputArea"></div>
+    </div>
+    <script>
+        // PDF upload validation and UI logic
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const outputArea = document.getElementById('outputArea');
+        const inputArea = document.getElementById('inputArea');
+        const loaderImg = document.getElementById('loaderImg');
+        const resetBtn = document.getElementById('resetBtn');
+        const sampleFiles = document.getElementById('sampleFiles');
+        let uploadedFileName = null;
+        
+        inputArea.style.display = 'none';
+
+        uploadBtn.onclick = function() {
+            const file = pdfInput.files[0];
+            if (!file) {
+                outputArea.textContent = 'Please select a PDF file.';
+                return;
+            }
+            if (file.type !== 'application/pdf') {
+                outputArea.textContent = 'Only PDF files are allowed.';
+                return;
+            }
+            if (file.size > 500 * 1024) {
+                outputArea.textContent = 'File size must be less than 500 KB.';
+                return;
+            }
+            // Upload PDF using AJAX/fetch
+            const formData = new FormData();
+            formData.append('file', file);
+            loaderImg.style.display = 'inline-block';
+            outputArea.textContent = '';
+            fetch('/uploads', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loaderImg.style.display = 'none';
+                if (data.success) {
+                    outputArea.textContent = 'PDF uploaded successfully.';
+                    inputArea.style.display = 'block';
+                    sampleFiles.style.display = 'none';
+                    uploadedFileName = file.name;
+                } else {
+                    outputArea.textContent = data.error || 'Upload failed.';
+                }
+            })
+            .catch(error => {
+                loaderImg.style.display = 'none';
+                outputArea.textContent = 'Error uploading file.';
+            });
+        };
+
+        resetBtn.onclick = function() {
+            window.location.reload();
+        };
+
+        function submitInput() {
+            const question = document.getElementById('userInput').value.trim();
+            if (!question) {
+                outputArea.textContent = 'Please enter a question.';
+                return;
+            }
+            if (!uploadedFileName) {
+                outputArea.textContent = 'Please upload a PDF first.';
+                return;
+            }
+            loaderImg.style.display = 'inline-block';
+            outputArea.textContent = '';
+            fetch('/api/process', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({question, file_name: uploadedFileName})
+            })
+            .then(response => response.json())
+            .then(data => {
+                outputArea.textContent = data.output;
+            })
+            .catch(() => {
+                outputArea.textContent = "Error: Could not process input.";
+            })
+            .finally(() => {
+                loaderImg.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
