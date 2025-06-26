@@ -117,3 +117,6 @@ venv.bak/
 
 # Windows
 Thumbs.db
+
+# Directory
+uploads/
