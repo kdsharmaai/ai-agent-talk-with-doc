@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 load_dotenv()
 
-@app.route("/")
+@app.route("/ai-agent-talk-with-doc")
 def index():
     return render_template("index.html")
 
