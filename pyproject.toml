@@ -16,6 +16,7 @@ pypdf = "^5.6.1"
 langchain-community = "^0.3.26"
 langchain-openai = "^0.3.25"
 flask = "^3.1.1"
+gunicorn = "^23.0.0"
 
 [tool.poetry]
 packages = [{include = "ai_agent_talk_with_doc", from = "src"}]
