@@ -2,112 +2,406 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Talk with your PDF document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk with Doc</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon-16x16.png">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #181818;
-            color: #f1f1f1;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
             min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-10px, -10px) scale(1.05); }
+            50% { transform: translate(10px, -5px) scale(1.02); }
+            75% { transform: translate(-5px, 10px) scale(1.03); }
         }
         .container {
-            background: #232323;
-            padding: 2em 2.5em;
-            border-radius: 12px;
-            box-shadow: 0 0 20px #1118;
-            width: 80%;
-            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        h2 {
-            margin-top: 0;
-            margin-bottom: 0.5em;
+        .main-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        .instructions {
-            font-size: 0.95em;
-            color: #aaa;
-            margin-bottom: 1.5em;
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
         }
-        input[type="text"] {
-            width: 90%;
-            padding: 0.6em;
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .header-section { text-align: center; margin-bottom: 2.5rem; }
+        .logo-container { position: relative; margin-bottom: 1.5rem; }
+        .logo-container img {
+            width: 120px; height: 120px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(120,119,198,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .logo-container:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(120,119,198,0.5);
+        }
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(102,126,234,0.3);
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .status-dot {
+            width: 8px; height: 8px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        /* How it works dropdown styles */
+        .how-it-works-container { margin: 1.5rem 0; text-align: center; }
+        .how-it-works-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 6px;
-            margin-bottom: 1em;
-            background: #2c2c2c;
-            color: #fafafa;
-            font-size: 1em;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+            position: relative;
+            overflow: hidden;
         }
-        button {
-            background: #3a86ff;
+        .how-it-works-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
+        .how-it-works-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .how-it-works-btn:hover::before { left: 100%; }
+        .how-it-works-content {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        .how-it-works-content.active {
+            max-height: 2000px;
+            opacity: 1;
+            transform: translateY(0);
+            margin-top: 1rem;
+        }
+        .how-it-works-image {
+            width: 100%; max-width: 200px; height: auto;
+            border-radius: 12px; margin: 1rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .how-it-works-text { color: #b0b0b0; line-height: 1.7; margin: 1.5rem 0; text-align: left; }
+        .how-it-works-text h3 { color: #667eea; margin-bottom: 1rem; font-size: 1.2rem; }
+        .how-it-works-text p { margin-bottom: 1rem; }
+        /* Instructions and example list */
+        .instructions {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #b0b0b0;
+        }
+        .instructions h3 { color: #667eea; margin-bottom: 1rem; font-size: 1.1rem; }
+        .example-list { list-style: none; padding: 0; }
+        .example-list li {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: rgba(102,126,234,0.1);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        /* PDF upload and sample files */
+        .upload-section { margin-bottom: 2rem; text-align: center; }
+        .custom-file-upload {
+            border: 1px solid #667eea;
+            display: inline-block;
+            padding: 10px 18px;
+            cursor: pointer;
+            background: rgba(102,126,234,0.08);
+            border-radius: 8px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 1em;
+            transition: background 0.2s, color 0.2s;
+        }
+        .custom-file-upload:hover {
+            background: #667eea;
+            color: #fff;
+        }
+        .sample-file-link {
+            color: #aaa !important;
+            margin: 0 1.5em;
+            text-decoration: underline;
+            font-size: 0.98em;
+        }
+        /* Input and output */
+        .input-section { margin-bottom: 2rem; }
+        .input-container { position: relative; margin-bottom: 1.5rem; }
+        .input-field {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102,126,234,0.3);
+            background: rgba(255,255,255,0.08);
+        }
+        .input-field::placeholder { color: #888; }
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102,126,234,0.4);
+        }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .submit-btn:hover::before { left: 100%; }
+        .reset-btn {
+            background: linear-gradient(135deg, #232323 0%, #667eea 100%);
             color: #fff;
             border: none;
-            padding: 0.7em 2em;
-            border-radius: 6px;
-            font-size: 1em;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            margin-left: 1em;
+            transition: all 0.3s;
         }
-        button:hover {
-            background: #265bb5;
+        .reset-btn:hover { background: linear-gradient(135deg, #667eea 0%, #232323 100%); }
+        .loader {
+            width: 40px; height: 40px; display: none; margin: 1rem auto; vertical-align: middle;
         }
         .output-area {
-            margin-top: 1.5em;
-            background: #222;
-            padding: 1em;
-            border-radius: 8px;
-            min-height: 2em;
-            color: #ffd166;
-            font-size: 1.08em;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 80px;
+            color: #00ff88;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }
-        .custom-file-upload {
-            border: 1px solid #ccc;
-            display: inline-block;
-            padding: 6px 12px;
-            cursor: pointer;
-            background-color: #f8f8f8;
-            border-radius: 4px;
-            margin-top: 5px;
-            color: #265bb5;
+        .output-area::before {
+            content: 'AI Response:';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
-        a.sample-file-link {
-            color: #aaa !important;
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .main-card { padding: 2rem 1.5rem; border-radius: 20px; }
+            .title { font-size: 2rem; }
+            .logo-container img { width: 100px; height: 100px; }
+            .input-field { padding: 1rem 1.2rem; }
+            .submit-btn { padding: 0.9rem 2rem; font-size: 1rem; }
+            .how-it-works-image { max-width: 200px; }
         }
+        @media (max-width: 480px) {
+            .main-card { padding: 1.5rem 1rem; }
+            .title { font-size: 1.8rem; }
+            .instructions { padding: 1rem; font-size: 0.9rem; }
+            .output-area { padding: 1.2rem; font-size: 1rem; }
+            .how-it-works-content, .how-it-works-content.active { padding: 1rem; }
+            .how-it-works-content.active { max-height: none; }
+        }
+        .floating { animation: floating 3s ease-in-out infinite; }
+        @keyframes floating { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="/static/graph.png" alt="Graph" style="width: 180px; margin-bottom: 1em; border-radius: 8px; box-shadow: 0 2px 8px #0006;">
-        <h2>Talk with Doc</h2>
-        <div class="instructions">
-            1) Upload a PDF document (Max size 500 KB).<br>
-            2) Insert question in input box.<br><br>
-            Get the answer from the document if answer is present in doc<br>
+        <div class="main-card floating">
+            <div class="header-section">
+                <h1 class="title">Talk with Doc</h1>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>System Online • Ready for Document Q&A</span>
+                </div>
+                <div class="how-it-works-container">
+                    <button class="how-it-works-btn" onclick="toggleHowItWorks()">
+                        🤔 How it works?
+                    </button>
+                    <div class="how-it-works-content" id="howItWorksContent">
+                        <img src="/static/graph.png" alt="System Architecture" class="how-it-works-image">
+                        <div class="how-it-works-text">
+                            <h3>📄 Document Q&A Workflow</h3>
+                            <p>Interact with your PDF documents using AI! Upload a PDF, ask questions, and get instant answers directly from your document's content.</p>
+                            <h3>🚀 How It Works</h3>
+                            <p>1. <strong>Upload:</strong> Select and upload a PDF document (max 500 KB).</p>
+                            <p>2. <strong>Ask:</strong> Enter your question about the document in the input box.</p>
+                            <p>3. <strong>Get Answers:</strong> The AI analyzes your document and provides answers based on its content.</p>
+                            <h3>🔑 Key Features</h3>
+                            <p>• <strong>Direct Q&A:</strong> Get answers only if the information is present in your PDF.</p>
+                            <p>• <strong>Sample Files:</strong> Try with provided sample PDFs for instant demo.</p>
+                            <p>• <strong>Modern UI:</strong> Enjoy a futuristic, responsive, and animated interface.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="instructions">
+                <h3>📝 How to use</h3>
+                <ul class="example-list">
+                    <li><strong>Step 1:</strong> Upload a PDF document (max 500 KB).</li>
+                    <li><strong>Step 2:</strong> Enter your question about the document.</li>
+                    <li><strong>Step 3:</strong> Click 'Submit' to get an answer from the document.</li>
+                </ul>
+                <div style="margin-top:1em; color:#aaa; font-size:0.98em;">
+                    Example questions: <br>
+                    <em>"What is the main topic of this document?"</em><br>
+                    <em>"Summarize section 2."</em><br>
+                    <em>"Who is the author?"</em>
+                </div>
+            </div>
+            <div class="upload-section">
+                <form id="uploadForm" enctype="multipart/form-data" style="display:inline-block;">
+                    <label for="pdfInput" class="custom-file-upload">Choose PDF</label>
+                    <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" required>
+                    <span id="fileNameDisplay" style="margin-left:1em; color:#aaa; font-size:0.98em;"></span>
+                    <button type="button" id="uploadBtn" class="submit-btn" style="margin-left:1em;" disabled>Upload PDF</button>
+                </form>
+                <div id="sampleFiles" style="margin-top:1em;">
+                    <a href="/static/AI Agents 101.pdf" class="sample-file-link">Sample file-1</a>
+                    <a href="/static/Meta-Quarter-2025-Results.pdf" class="sample-file-link">Sample file-2</a>
+                </div>
+            </div>
+            <div class="input-section" id="inputArea" style="display:none;">
+                <div class="input-container">
+                    <input type="text" id="userInput" class="input-field" placeholder="Enter your question here" required="true">
+                </div>
+                <button id="submitBtn" class="submit-btn" onclick="submitInput()">Submit</button>
+                <button id="resetBtn" type="button" class="reset-btn">Reset</button>
+                <img id="loaderImg" src="/static/loader.gif" alt="Loading..." class="loader">
+            </div>
+            <div class="output-area" id="outputArea">
+                <div style="text-align: center; color: #666; font-style: italic;">
+                    AI response will appear here...
+                </div>
+            </div>
         </div>
-        <form id="uploadForm" enctype="multipart/form-data" style="margin-bottom: 1em;">
-            <input type="file" id="pdfInput" accept="application/pdf" style="margin-bottom: 0.5em;" class="custom-file-upload" required>
-            <button type="button" id="uploadBtn">Upload PDF</button>
-        </form>
-        <div id="sampleFiles">
-            <a href="/static/AI Agents 101.pdf" class="sample-file-link">Sample file-1</a>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="/static/Meta-Quarter-2025-Results.pdf" class="sample-file-link">Sample file-2</a>
-        </div>
-        <div id="inputArea">
-            <input type="text" id="userInput" placeholder="Enter your question here" required="true">
-            <br>
-            <button id="submitBtn" onclick="submitInput()">Submit</button>
-            <button id="resetBtn" type="button" style="margin-left: 1em;">Reset</button>
-        </div>
-        <img id="loaderImg" src="/static/loader.gif" alt="Loading..." style="display:none;width:36px;margin:1em 0;vertical-align:middle;">
-        <div class="output-area" id="outputArea"></div>
     </div>
     <script>
+        // How it works dropdown functionality
+        function toggleHowItWorks() {
+            const content = document.getElementById('howItWorksContent');
+            const btn = document.querySelector('.how-it-works-btn');
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                btn.innerHTML = '🤔 How it works?';
+            } else {
+                content.classList.add('active');
+                btn.innerHTML = '📖 Hide Details';
+            }
+        }
         // PDF upload validation and UI logic
         const pdfInput = document.getElementById('pdfInput');
         const uploadBtn = document.getElementById('uploadBtn');
@@ -117,28 +411,37 @@
         const resetBtn = document.getElementById('resetBtn');
         const sampleFiles = document.getElementById('sampleFiles');
         let uploadedFileName = null;
-        
+        // Show selected file name
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        pdfInput.addEventListener('change', function() {
+            if (pdfInput.files && pdfInput.files[0]) {
+                fileNameDisplay.textContent = pdfInput.files[0].name;
+                uploadBtn.disabled = false;
+            } else {
+                fileNameDisplay.textContent = '';
+                uploadBtn.disabled = true;
+            }
+        });
+        uploadBtn.disabled = true;
         inputArea.style.display = 'none';
-
         uploadBtn.onclick = function() {
             const file = pdfInput.files[0];
             if (!file) {
-                outputArea.textContent = 'Please select a PDF file.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Please select a PDF file.</div>';
                 return;
             }
             if (file.type !== 'application/pdf') {
-                outputArea.textContent = 'Only PDF files are allowed.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Only PDF files are allowed.</div>';
                 return;
             }
             if (file.size > 500 * 1024) {
-                outputArea.textContent = 'File size must be less than 500 KB.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">File size must be less than 500 KB.</div>';
                 return;
             }
-            // Upload PDF using AJAX/fetch
             const formData = new FormData();
             formData.append('file', file);
             loaderImg.style.display = 'inline-block';
-            outputArea.textContent = '';
+            outputArea.innerHTML = '';
             fetch('/uploads', {
                 method: 'POST',
                 body: formData
@@ -147,36 +450,32 @@
             .then(data => {
                 loaderImg.style.display = 'none';
                 if (data.success) {
-                    outputArea.textContent = 'PDF uploaded successfully.';
+                    outputArea.innerHTML = '<div style="color: #00ff88; text-align: center;">PDF uploaded successfully.</div>';
                     inputArea.style.display = 'block';
                     sampleFiles.style.display = 'none';
                     uploadedFileName = file.name;
                 } else {
-                    outputArea.textContent = data.error || 'Upload failed.';
+                    outputArea.innerHTML = `<div style='color: #ff6b6b; text-align: center;'>${data.error || 'Upload failed.'}</div>`;
                 }
             })
             .catch(error => {
                 loaderImg.style.display = 'none';
-                outputArea.textContent = 'Error uploading file.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Error uploading file.</div>';
             });
         };
-
-        resetBtn.onclick = function() {
-            window.location.reload();
-        };
-
+        resetBtn.onclick = function() { window.location.reload(); };
         function submitInput() {
             const question = document.getElementById('userInput').value.trim();
             if (!question) {
-                outputArea.textContent = 'Please enter a question.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Please enter a question.</div>';
                 return;
             }
             if (!uploadedFileName) {
-                outputArea.textContent = 'Please upload a PDF first.';
+                outputArea.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Please upload a PDF first.</div>';
                 return;
             }
             loaderImg.style.display = 'inline-block';
-            outputArea.textContent = '';
+            outputArea.innerHTML = '<div style="text-align: center; color: #667eea;">🤖 AI is processing your request...</div>';
             fetch('/api/process', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -184,15 +483,28 @@
             })
             .then(response => response.json())
             .then(data => {
-                outputArea.textContent = data.output;
+                outputArea.innerHTML = `<div style='color: #00ff88;'>${data.output}</div>`;
             })
             .catch(() => {
-                outputArea.textContent = "Error: Could not process input.";
+                outputArea.innerHTML = "<div style='color: #ff6b6b; text-align: center;'>Error: Could not process input.</div>";
             })
             .finally(() => {
                 loaderImg.style.display = 'none';
             });
         }
+        // Enter key support for question input
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitInput();
+            }
+        });
+        // Focus effects
+        document.getElementById('userInput').addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        document.getElementById('userInput').addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
     </script>
 </body>
 </html>
