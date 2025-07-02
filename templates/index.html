@@ -316,6 +316,30 @@
         }
         .floating { animation: floating 3s ease-in-out infinite; }
         @keyframes floating { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+
+        .github-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #333 0%, #555 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 1rem;
+        }
+
+        .github-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(135deg, #444 0%, #666 100%);
+        }
+
+        .github-link::before {
+            content: '📁 ';
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -345,6 +369,9 @@
                             <p>• <strong>Sample Files:</strong> Try with provided sample PDFs for instant demo.</p>
                             <p>• <strong>Modern UI:</strong> Enjoy a futuristic, responsive, and animated interface.</p>
                         </div>
+                        <a href="https://github.com/kdsharmaai/ai-agent-talk-with-doc" target="_blank" class="github-link">
+                            View on GitHub
+                        </a>
                     </div>
                 </div>
             </div>
