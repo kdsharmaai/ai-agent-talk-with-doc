@@ -120,3 +120,6 @@ Thumbs.db
 
 # Directory
 uploads/
+
+# Extra
+nohup.out
