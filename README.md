@@ -100,7 +100,6 @@ APIs & Services:
 - **Step 3:** Click 'Submit' to get an answer from the document
 
 Try with sample files:
-- [AI Agents 101.pdf](static/AI%20Agents%20101.pdf)
 - [Meta-Quarter-2025-Results.pdf](static/Meta-Quarter-2025-Results.pdf)
 
 ## 🔧 Configuration
@@ -138,7 +137,6 @@ ai-agent-talk-with-doc/
 │   ├── favicon-16x16.png
 │   ├── graph.png
 │   ├── loader.gif
-│   ├── AI Agents 101.pdf
 │   └── Meta-Quarter-2025-Results.pdf
 ├── uploads/             # Uploaded PDF files (runtime)
 └── templates/           # HTML templates
